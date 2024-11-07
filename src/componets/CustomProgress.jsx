@@ -7,9 +7,12 @@ const CustomProgress = ({
   progressColor,
   size = 100,
   textLabel,
+  className,
+  percentageClass,
+  ...rest
 }) => {
   return (
-    <div className="relative">
+    <div className={`relative ${className}`} {...rest}>
       <CircularProgress
         variant="determinate"
         value={100}
@@ -33,7 +36,9 @@ const CustomProgress = ({
       />
 
       <div className="absolute top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-        <span className="text-base font-medium">{percentage}%</span>
+        <span className={`text-base font-medium ${percentageClass}`}>
+          {percentage}%
+        </span>
         {textLabel && <div className="text-xs text-gray-500">{textLabel}</div>}
       </div>
     </div>
