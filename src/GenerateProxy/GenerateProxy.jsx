@@ -257,9 +257,9 @@ const ProxyGenerator = () => {
                 display: "flex",
                 color: "white",
                 p: 1,
-                width: "25%",
-                borderRadius: 2,
+                width: "20rem",
                 mb: 2,
+                borderRadius: 2,
               }}
             >
               Country - State - City
@@ -371,14 +371,10 @@ const ProxyGenerator = () => {
               />
             </Box>
 
-            {/* Rotating Proxy */}
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Rotating Proxy
-            </Typography>
-            <TextField
+            <TextFieldWithLabel
+              label="Rotating Proxy"
               fullWidth
               value={rotatingProxy}
-              size="small"
               sx={{ mb: 3 }}
               InputProps={{
                 readOnly: true,
