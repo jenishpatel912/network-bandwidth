@@ -2,7 +2,6 @@ import { Button } from "@mui/material";
 import React, { useEffect } from "react";
 import CustomProgress from "../componets/CustomProgress";
 import StatCard from "../componets/StatCard";
-import StatProgressCard from "../componets/StatProgressCard";
 import { fetchData } from "../utils";
 
 const data = {
@@ -80,7 +79,7 @@ const Dashboard = () => {
         <StatCard
           icon={"https://lightningproxies.net/assets/images/icons/cart.svg"}
           title={"Active Plans"}
-          value={"1"}
+          subTitle={"1"}
           actionButton={{
             title: "Purchase Plan",
             onClick: () => {},
