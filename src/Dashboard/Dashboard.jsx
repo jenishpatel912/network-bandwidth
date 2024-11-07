@@ -1,15 +1,11 @@
-import EmailIcon from "@mui/icons-material/Email";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import { Button } from "@mui/material";
 import React from "react";
 import CustomProgress from "../componets/CustomProgress";
 import StatCard from "../componets/StatCard";
-import StatProgressCard from "../componets/StatProgressCard";
 
 const Dashboard = () => {
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-[#f4f6f8] min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
@@ -26,15 +22,15 @@ const Dashboard = () => {
         <StatCard
           icon={"https://lightningproxies.net/assets/images/icons/doller.svg"}
           title={"Active Balance"}
-          value={10}
-          isCurrency={true}
+          subTitle={"$10"}
           actionButton={{
             title: "Add Balance",
             onClick: () => {},
             color: "success",
+            className: "self-end",
           }}
           totalLabel={"Total Balance Spent"}
-          totalValue={50}
+          totalValue={"$50"}
         />
         <StatCard
           icon={"https://lightningproxies.net/assets/images/icons/cart.svg"}
@@ -44,18 +40,27 @@ const Dashboard = () => {
             title: "Purchase Plan",
             onClick: () => {},
             color: "primary",
+            className: "self-end",
           }}
           totalLabel={"Total Purchased Plans"}
           totalValue={"50"}
         />
 
-        <StatProgressCard
+        <StatCard
           icon={"https://lightningproxies.net/assets/images/icons/server.svg"}
           title={"Data Left"}
-          value={76}
+          subTitle={"1181.90 GB"}
           totalLabel={"Total Data Purchased"}
-          totalValue={"5 GB"}
-          percentage={25}
+          totalValue={"5033.30 GB"}
+          customActionButton={
+            <CustomProgress
+              borderColor="#f1f5f9"
+              progressColor="#1a75ff"
+              className="self-center"
+              percentage={25}
+              textLabel="Data Left"
+            />
+          }
         />
 
         <div className="bg-white flex flex-col w-full justify-center items-center gap-4 rounded-lg p-4 shadow-sm">
@@ -101,24 +106,29 @@ const Dashboard = () => {
           Generate proxies with just a click of a button
         </p>
 
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="flex items-center gap-4 mb-4">
-            <CustomProgress
-              borderColor="#8abaff"
-              progressColor="#1a75ff"
-              percentage={76}
-              size={60}
-              thickness={6}
-            />
-            <div>
-              <h3 className="font-medium">Residential 5GB</h3>
-              <p className="text-sm text-gray-600">
-                Ideal proxies for any use case & purpose. By accessing our 10M+
-                IP pool non-subnet linked, bans and blocks are non-existent.
-              </p>
+        <div className="bg-white rounded-lg p-6 w-full max-w-4xl shadow-sm">
+          <div className="flex justify-between items-center gap-4 mb-4">
+            <div className="flex items-center gap-4">
+              <CustomProgress
+                borderColor="#8abaff"
+                progressColor="#1a75ff"
+                percentage={76}
+                size={60}
+                thickness={6}
+              />
+              <div>
+                <h3 className="font-medium">Residential 5GB</h3>
+                <p className="text-sm text-gray-600 max-w-2xl">
+                  Ideal proxies for any use case & purpose. By accessing our
+                  10M+ IP pool non-subnet linked, bans and blocks are
+                  non-existent.
+                </p>
+              </div>
             </div>
-            <span className="ml-auto">5 GB</span>
+            <span>5 GB</span>
           </div>
+
+          <hr className="my-4" />
 
           <div className="flex justify-between items-center text-sm ">
             <div>
@@ -133,7 +143,11 @@ const Dashboard = () => {
               <p>Expires</p>
               <p className="font-medium">31 Oct 2025</p>
             </div>
-            <Button variant="outlined" color="primary">
+            <Button
+              variant="outlined"
+              size="small"
+              className={`!text-sm !capitalize !font-medium !rounded-lg`}
+            >
               Generate Proxy ›
             </Button>
           </div>
