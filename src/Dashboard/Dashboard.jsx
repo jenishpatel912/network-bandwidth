@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import CustomProgress from "../componets/CustomProgress";
 import StatCard from "../componets/StatCard";
 import { fetchData } from "../utils";
+import { useNavigate } from "react-router-dom";
 
 const data = {
   id: 555451,
@@ -18,6 +19,8 @@ const data = {
   proxy_account_quantity_upper_limit: 500,
   channel: 7,
 };
+
+// residential-account-info
 // {
 //     "account": "proxytemp123",
 //     "password": "pass1234",
@@ -31,12 +34,30 @@ const data = {
 //     "all_buy": 0
 // }
 
+// residential-user-info
+// {
+//   "bandwidthLeft": 1000000000,
+//   "all_buy": 1000000000,
+//   "used": 0
+// }  
+
 const Dashboard = () => {
   let userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  let residentialAccountInfo = JSON.parse(
+    localStorage.getItem("residential-account-info")
+  );
+  let residentialUserInfo = JSON.parse(
+    localStorage.getItem("residential-user-info")
+  );
   console.log(JSON.stringify(data));
 
-  const {username,email} = userInfo || {};
+  const { username, email, id } = userInfo || {};
 
+  const { balance, all_buy } = residentialAccountInfo || {};
+
+  const { bandwidthLeft, all_buy: total_buy, used } = residentialUserInfo || {};
+
+  const navigate = useNavigate();
   useEffect(() => {
     // fetchData("residential-account-info", {
     //   username: "jenishp8421",
@@ -66,7 +87,7 @@ const Dashboard = () => {
         <StatCard
           icon={"https://lightningproxies.net/assets/images/icons/doller.svg"}
           title={"Active Balance"}
-          subTitle={"$10"}
+          subTitle={`$${balance}`}
           actionButton={{
             title: "Add Balance",
             onClick: () => {},
@@ -74,7 +95,7 @@ const Dashboard = () => {
             className: "self-end",
           }}
           totalLabel={"Total Balance Spent"}
-          totalValue={"$50"}
+          totalValue={`$${all_buy}`}
         />
         <StatCard
           icon={"https://lightningproxies.net/assets/images/icons/cart.svg"}
@@ -93,9 +114,9 @@ const Dashboard = () => {
         <StatCard
           icon={"https://lightningproxies.net/assets/images/icons/server.svg"}
           title={"Data Left"}
-          subTitle={"1181.90 GB"}
+          subTitle={`${(bandwidthLeft / 1000000000).toFixed(2)} GB`}
           totalLabel={"Total Data Purchased"}
-          totalValue={"5033.30 GB"}
+          totalValue={`${(total_buy / 1000000000).toFixed(2)} GB`}
           customActionButton={
             <CustomProgress
               borderColor="#f1f5f9"
@@ -116,7 +137,7 @@ const Dashboard = () => {
 
           <div className="flex flex-col items-center">
             <h3 className="font-medium">{username}</h3>
-            <span className="text-sm text-gray-600">532423ew3482304</span>
+            <span className="text-sm text-gray-600">{id}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -191,6 +212,9 @@ const Dashboard = () => {
               variant="outlined"
               size="small"
               className={`!text-sm !capitalize !font-medium !rounded-lg`}
+              onClick={() => {
+                navigate("/generate-proxy");
+              }}
             >
               Generate Proxy ›
             </Button>

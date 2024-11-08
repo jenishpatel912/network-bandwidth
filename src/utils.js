@@ -8,10 +8,10 @@ export const fetchData = async (url, payload) => {
       `https://developer-tester.lightningproxies.net/api/${url}`,
       payload,
       {
-        headers:{
-            "Content-Type":"application/json",
-            "api-key": "bqzncgO9k3"
-        }
+        headers: {
+          "Content-Type": "application/json",
+          // "api-key": "bqzncgO9k3"
+        },
       }
     );
 
@@ -22,4 +22,8 @@ export const fetchData = async (url, payload) => {
   }
 
   return { error, response };
+};
+
+export const bytesToGB = (bytes) => {
+  return bytes > 0 ? (bytes / 1000000000).toFixed(2) : 0;
 };

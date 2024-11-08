@@ -20,9 +20,31 @@ import { BlueButton } from "../componets/BlueButton";
 import CustomProgress from "../componets/CustomProgress";
 import StatCard from "../componets/StatCard";
 import { TextFieldWithLabel } from "../componets/TextFieldWithLabel";
+import { fetchData } from "../utils";
 
 const BandwidthInput = () => {
-  const handleAddBandwidth = () => {};
+  let userInfo = JSON.parse(localStorage.getItem("userInfo"));
+
+  let residentialAccountInfo = JSON.parse(
+    localStorage.getItem("residential-account-info")
+  );
+  const [bandwidth, setBandwidth] = useState(0);
+
+  const { username } = userInfo || {};
+  const { balance } = residentialAccountInfo || {};
+
+  const handleAddBandwidth = async () => {
+    const { error, response } = await fetchData("add-gigabytes-residential", {
+      username,
+      flow: 1,
+      duration: bandwidth,
+    });
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(response);
+    }
+  };
 
   return (
     <div className="flex flex-col items-start w-full gap-2">
@@ -37,12 +59,23 @@ const BandwidthInput = () => {
             display: "flex",
             marginRight: 4,
           }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <span className="font-semibold text-[#116ce6]">GB</span>
-              </InputAdornment>
-            ),
+          value={bandwidth}
+          onChange={(e) => {
+            const num = Number(e.target.value);
+            if (num > 0) {
+              setBandwidth(num);
+            } else {
+              setBandwidth(null);
+            }
+          }}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <span className="font-semibold text-[#116ce6]">GB</span>
+                </InputAdornment>
+              ),
+            },
           }}
         />
         <Button
@@ -52,6 +85,7 @@ const BandwidthInput = () => {
             textTransform: "none",
             width: "100px",
           }}
+          disabled={!bandwidth}
           onClick={handleAddBandwidth}
         >
           ADD ›
@@ -138,7 +172,9 @@ const ProxyGenerator = () => {
 
             <div className="flex flex-col justify-between items-start">
               <h3 className="font-medium text-gray-600">Total Bandwidth</h3>
-              <span className="text-2xl font-normal">5 GB</span>
+              <span className="text-2xl font-normal">
+                {bytesToGB(balance)} GB
+              </span>
             </div>
           </div>
 
