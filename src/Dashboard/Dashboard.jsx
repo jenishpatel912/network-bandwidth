@@ -2,54 +2,15 @@ import { Button } from "@mui/material";
 import React, { useEffect } from "react";
 import CustomProgress from "../componets/CustomProgress";
 import StatCard from "../componets/StatCard";
-import { fetchData } from "../utils";
+import { bytesToGB, fetchData } from "../utils";
 import { useNavigate } from "react-router-dom";
-
-const data = {
-  id: 555451,
-  username: "user1234",
-  email: "user1234@lightningproxies.net",
-  password: "b0c3aa9c8ba985605771f9be6cf73397",
-  unset_pass: "P@ssw0rd!",
-  status: 1,
-  created_at: 1730879557,
-  agent_id: 179,
-  ip_white_quantity_upper_limit: 500,
-  unlimited_ip_white_quantity_upper_limit: 500,
-  proxy_account_quantity_upper_limit: 500,
-  channel: 7,
-};
-
-// residential-account-info
-// {
-//     "account": "proxytemp123",
-//     "password": "pass1234",
-//     "state": 1,
-//     "consumed_flow": 0,
-//     "limit_flow": 0,
-//     "flow_type": "resi,lightning",
-//     "account_type": "",
-//     "check_white_list": 0,
-//     "balance": 0,
-//     "all_buy": 0
-// }
-
-// residential-user-info
-// {
-//   "bandwidthLeft": 1000000000,
-//   "all_buy": 1000000000,
-//   "used": 0
-// }  
+import { useState } from "react";
 
 const Dashboard = () => {
   let userInfo = JSON.parse(localStorage.getItem("userInfo"));
-  let residentialAccountInfo = JSON.parse(
-    localStorage.getItem("residential-account-info")
-  );
-  let residentialUserInfo = JSON.parse(
-    localStorage.getItem("residential-user-info")
-  );
-  console.log(JSON.stringify(data));
+
+  const [residentialAccountInfo, setResidentialAccountInfo] = useState(null);
+  const [residentialUserInfo, setResidentialUserInfo] = useState(null);
 
   const { username, email, id } = userInfo || {};
 
@@ -58,16 +19,58 @@ const Dashboard = () => {
   const { bandwidthLeft, all_buy: total_buy, used } = residentialUserInfo || {};
 
   const navigate = useNavigate();
+
+  const getResidentialAccountInfo = async () => {
+    if (localStorage.getItem("residential-account-info")) {
+      setResidentialAccountInfo(
+        JSON.parse(localStorage.getItem("residential-account-info"))
+      );
+
+      return;
+    }
+
+    const res = await fetchData("residential-account-info", {
+      username: username,
+    });
+
+    if (!res.error) {
+      localStorage.setItem(
+        "residential-account-info",
+        JSON.stringify(res?.response?.data)
+      );
+    }
+  };
+
   useEffect(() => {
-    // fetchData("residential-account-info", {
-    //   username: "jenishp8421",
-    // });
-    // fetchData("add-gigabytes-residential", {
-    //   username: "jenishp8421",
-    //   flow: 1,
-    //   duration: 3,
-    // });
-  }, []);
+    if (username) {
+      getResidentialUserInfo();
+      getResidentialAccountInfo();
+    }
+  }, [username]);
+
+  const getResidentialUserInfo = async () => {
+    const res = await fetchData("residential-user-info", {
+      username: username,
+    });
+
+    if (!res.error) {
+      setResidentialUserInfo(res?.response?.data);
+      localStorage.setItem(
+        "residential-user-info",
+        JSON.stringify(res?.response?.data)
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (username) {
+      const intervalId = setInterval(() => {
+        getResidentialUserInfo();
+      }, 30000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [username]);
 
   return (
     <div className="p-6 bg-[#f4f6f8] min-h-screen">
@@ -77,9 +80,6 @@ const Dashboard = () => {
           <h1 className="text-2xl font-semibold">Welcome user</h1>
           <p className="text-gray-600">Welcome back, we're glad to have you.</p>
         </div>
-        {/* <Button variant="text" className="text-blue-600">
-          Please read! Read More ›
-        </Button> */}
       </div>
 
       {/* Stats Cards */}
@@ -114,9 +114,9 @@ const Dashboard = () => {
         <StatCard
           icon={"https://lightningproxies.net/assets/images/icons/server.svg"}
           title={"Data Left"}
-          subTitle={`${(bandwidthLeft / 1000000000).toFixed(2)} GB`}
+          subTitle={`${bytesToGB(bandwidthLeft)} GB`}
           totalLabel={"Total Data Purchased"}
-          totalValue={`${(total_buy / 1000000000).toFixed(2)} GB`}
+          totalValue={`${bytesToGB(total_buy)} GB`}
           customActionButton={
             <CustomProgress
               borderColor="#f1f5f9"

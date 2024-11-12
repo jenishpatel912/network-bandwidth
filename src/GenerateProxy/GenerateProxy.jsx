@@ -1,4 +1,4 @@
-import { ContentCopy, Download } from "@mui/icons-material";
+import { Download } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -13,25 +13,36 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Paper from "@mui/material/Paper";
 import Slider from "@mui/material/Slider";
 import React, { useState } from "react";
 import { BlueButton } from "../componets/BlueButton";
 import CustomProgress from "../componets/CustomProgress";
 import StatCard from "../componets/StatCard";
 import { TextFieldWithLabel } from "../componets/TextFieldWithLabel";
-import { fetchData } from "../utils";
+import { bytesToGB, fetchData } from "../utils";
+import { toast } from "react-toastify";
 
-const BandwidthInput = () => {
+const ProxyGenerator = () => {
+  const [proxyType, setProxyType] = useState("Standard");
+  const [country, setCountry] = useState("Germany");
+  const [tab, setTab] = useState(0);
+  const [stickyTime, setStickyTime] = useState(22);
+  const [stickyCount, setStickyCount] = useState(2000);
+
   let userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
   let residentialAccountInfo = JSON.parse(
     localStorage.getItem("residential-account-info")
   );
-  const [bandwidth, setBandwidth] = useState(0);
 
-  const { username } = userInfo || {};
   const { balance } = residentialAccountInfo || {};
+  const { username } = userInfo || {};
+  const rotatingProxy =
+    "resi-eu.lightningproxies.net:9999:dnzkfhzjlkcobzp90166-zone-resi-region-de:lsusonhynm";
+  const generatedProxy =
+    "resi-eu.lightningproxies.net:9999:dnzkfhzjlkcobzp90166-zone-resi-region-de-session-39HivxVQaccW-sessTime=22:lsusonhynm";
+
+  const [bandwidth, setBandwidth] = useState(0);
 
   const handleAddBandwidth = async () => {
     const { error, response } = await fetchData("add-gigabytes-residential", {
@@ -45,67 +56,6 @@ const BandwidthInput = () => {
       console.log(response);
     }
   };
-
-  return (
-    <div className="flex flex-col items-start w-full gap-2">
-      <span className="mr-2 text-gray-500">Add Bandwidth</span>
-      <div className="flex justify-between w-full">
-        <TextField
-          size="small"
-          type="number"
-          defaultValue={0}
-          fullWidth
-          sx={{
-            display: "flex",
-            marginRight: 4,
-          }}
-          value={bandwidth}
-          onChange={(e) => {
-            const num = Number(e.target.value);
-            if (num > 0) {
-              setBandwidth(num);
-            } else {
-              setBandwidth(null);
-            }
-          }}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <span className="font-semibold text-[#116ce6]">GB</span>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{
-            textTransform: "none",
-            width: "100px",
-          }}
-          disabled={!bandwidth}
-          onClick={handleAddBandwidth}
-        >
-          ADD ›
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const ProxyGenerator = () => {
-  const [proxyType, setProxyType] = useState("Standard");
-  const [country, setCountry] = useState("Germany");
-  const [tab, setTab] = useState(0);
-  const [stickyTime, setStickyTime] = useState(22);
-  const [stickyCount, setStickyCount] = useState(2000);
-
-  const rotatingProxy =
-    "resi-eu.lightningproxies.net:9999:dnzkfhzjlkcobzp90166-zone-resi-region-de:lsusonhynm";
-  const generatedProxy =
-    "resi-eu.lightningproxies.net:9999:dnzkfhzjlkcobzp90166-zone-resi-region-de-session-39HivxVQaccW-sessTime=22:lsusonhynm";
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
@@ -207,7 +157,53 @@ const ProxyGenerator = () => {
                 <span>3.8 GB</span>
               </div>
 
-              <BandwidthInput />
+              <div className="flex flex-col items-start w-full gap-2">
+                <span className="mr-2 text-gray-500">Add Bandwidth</span>
+                <div className="flex justify-between w-full">
+                  <TextField
+                    size="small"
+                    type="number"
+                    defaultValue={0}
+                    fullWidth
+                    sx={{
+                      display: "flex",
+                      marginRight: 4,
+                    }}
+                    value={bandwidth}
+                    onChange={(e) => {
+                      const num = Number(e.target.value);
+                      if (num > 0) {
+                        setBandwidth(num);
+                      } else {
+                        setBandwidth(null);
+                      }
+                    }}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <span className="font-semibold text-[#116ce6]">
+                              GB
+                            </span>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                      textTransform: "none",
+                      width: "100px",
+                    }}
+                    disabled={!bandwidth}
+                    onClick={handleAddBandwidth}
+                  >
+                    ADD ›
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -483,10 +479,42 @@ const ProxyGenerator = () => {
                 variant="text"
                 color="primary"
                 sx={{ textTransform: "none" }}
+                onClick={() => {
+                  const blob = new Blob([generatedProxy], {
+                    type: "text/plain",
+                  });
+
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+
+                  link.href = url;
+                  link.download = "proxies.txt";
+
+                  document.body.appendChild(link);
+                  link.click();
+
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(url);
+                }}
               >
                 Save as .txt
               </Button>
-              <BlueButton variant="contained">Copy Proxies</BlueButton>
+              <BlueButton
+                onClick={() => {
+                  navigator.clipboard
+                    .writeText(generatedProxy)
+                    .then(() => {
+                      toast.success("Proxies copied to clipboard!");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy:", err);
+                      toast.error("Failed to copy proxies");
+                    });
+                }}
+                variant="contained"
+              >
+                Copy Proxies
+              </BlueButton>
             </Box>
           </Box>
         </div>
