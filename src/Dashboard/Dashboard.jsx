@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import CustomProgress from "../componets/CustomProgress";
 import StatCard from "../componets/StatCard";
 import { fetchData } from "../utils";
+import { useNavigate } from "react-router-dom";
 
 const data = {
   id: 555451,
@@ -36,6 +37,7 @@ const Dashboard = () => {
   console.log(JSON.stringify(data));
 
   const {username,email} = userInfo || {};
+  const navigate = useNavigate()
 
   useEffect(() => {
     // fetchData("residential-account-info", {
@@ -191,6 +193,7 @@ const Dashboard = () => {
               variant="outlined"
               size="small"
               className={`!text-sm !capitalize !font-medium !rounded-lg`}
+              onClick={()=>navigate("/proxy")}
             >
               Generate Proxy ›
             </Button>

@@ -20,6 +20,7 @@ import { BlueButton } from "../componets/BlueButton";
 import CustomProgress from "../componets/CustomProgress";
 import StatCard from "../componets/StatCard";
 import { TextFieldWithLabel } from "../componets/TextFieldWithLabel";
+import { countries, fetchData } from "../utils";
 
 const BandwidthInput = () => {
   const handleAddBandwidth = () => {};
@@ -63,7 +64,14 @@ const BandwidthInput = () => {
 
 const ProxyGenerator = () => {
   const [proxyType, setProxyType] = useState("Standard");
-  const [country, setCountry] = useState("Germany");
+  const [country, setCountry] = useState("");
+
+  const [states, setStates] = useState([]);
+  const [state, setState] = useState("");
+
+  const [cities, setCities] = useState([]);
+  const [city, setCity] = useState("");
+
   const [tab, setTab] = useState(0);
   const [stickyTime, setStickyTime] = useState(22);
   const [stickyCount, setStickyCount] = useState(2000);
@@ -75,6 +83,37 @@ const ProxyGenerator = () => {
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
+  };
+
+  const getLocation = async (payload) => {
+    const { error, response } = await fetchData(
+      "list-countries-state-city-isp",
+      payload
+    );
+    if (error) return null;
+    console.log(response.data, "list");
+    return response.data;
+  };
+
+  const handleCountryChange = async (e, name) => {
+    const val = e.target.value;
+  
+    if (name === "country") {
+      setCountry(val);
+      const stateList = await getLocation({ country_code: val });
+      if (stateList) {
+        setStates(stateList);
+        setCities([]);
+      }
+    } else if (name === "state") {
+      setState(val);
+      const cityList = await getLocation({ country_code: country, state: val });
+      if (cityList) {
+        setCities(cityList);
+      }
+    } else {
+      setCity(val);
+    }
   };
 
   return (
@@ -277,31 +316,49 @@ const ProxyGenerator = () => {
                 <span className=" text-gray-500">Country</span>
                 <Select
                   value={country}
-                  onChange={(e) => setCountry(e.target.value)}
+                  onChange={(e) => handleCountryChange(e, "country")}
                   size="small"
                   fullWidth
                   sx={{ bgcolor: "white" }}
                 >
-                  <MenuItem value="Germany">Germany</MenuItem>
-                  <MenuItem value="France">France</MenuItem>
-                  <MenuItem value="Spain">Spain</MenuItem>
+                  {countries.map((item) => (
+                    <MenuItem value={item.country_code} key={item.id}>
+                      {item.country_name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </Box>
               <Box className="flex flex-col items-start w-full gap-1">
                 <span className=" text-gray-500">State </span>
-                <TextField
-                  fullWidth
-                  defaultValue="Worldwide Mix"
+                <Select
+                  value={state}
+                  onChange={(e) => handleCountryChange(e, "state")}
                   size="small"
-                />
+                  fullWidth
+                  sx={{ bgcolor: "white" }}
+                >
+                  {states.map((item) => (
+                    <MenuItem value={item.state} key={item.state}>
+                      {item.state}
+                    </MenuItem>
+                  ))}
+                </Select>
               </Box>
               <Box className="flex flex-col items-start w-full gap-1">
                 <span className=" text-gray-500">City</span>
-                <TextField
-                  fullWidth
-                  defaultValue="Worldwide Mix"
+                <Select
+                  value={city}
+                  onChange={(e) => handleCountryChange(e, "city")}
                   size="small"
-                />
+                  fullWidth
+                  sx={{ bgcolor: "white" }}
+                >
+                  {cities.map((item) => (
+                    <MenuItem value={item.code} key={item.code}>
+                      {item.code}
+                    </MenuItem>
+                  ))}
+                </Select>
               </Box>
             </Box>
 
