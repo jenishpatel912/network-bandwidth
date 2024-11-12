@@ -5,6 +5,35 @@ import StatCard from "../componets/StatCard";
 import { bytesToGB, fetchData } from "../utils";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { fetchData } from "../utils";
+import { useNavigate } from "react-router-dom";
+
+const data = {
+  id: 555451,
+  username: "user1234",
+  email: "user1234@lightningproxies.net",
+  password: "b0c3aa9c8ba985605771f9be6cf73397",
+  unset_pass: "P@ssw0rd!",
+  status: 1,
+  created_at: 1730879557,
+  agent_id: 179,
+  ip_white_quantity_upper_limit: 500,
+  unlimited_ip_white_quantity_upper_limit: 500,
+  proxy_account_quantity_upper_limit: 500,
+  channel: 7,
+};
+// {
+//     "account": "proxytemp123",
+//     "password": "pass1234",
+//     "state": 1,
+//     "consumed_flow": 0,
+//     "limit_flow": 0,
+//     "flow_type": "resi,lightning",
+//     "account_type": "",
+//     "check_white_list": 0,
+//     "balance": 0,
+//     "all_buy": 0
+// }
 
 const Dashboard = () => {
   let userInfo = JSON.parse(localStorage.getItem("userInfo"));
