@@ -21,11 +21,11 @@ import StatCard from "../componets/StatCard";
 import { TextFieldWithLabel } from "../componets/TextFieldWithLabel";
 import { bytesToGB, countries, fetchData } from "../utils";
 import { toast } from "react-toastify";
+import { useUserContext } from "../UserContext";
 
 const ProxyGenerator = () => {
   const [proxyType, setProxyType] = useState("Standard");
   const [country, setCountry] = useState("");
-
   const [states, setStates] = useState([]);
   const [state, setState] = useState("");
 
@@ -38,17 +38,13 @@ const ProxyGenerator = () => {
 
   let userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
-  let residentialAccountInfo = JSON.parse(
-    localStorage.getItem("residential-account-info")
-  );
-
-  const { balance } = residentialAccountInfo || {};
+  const { residentialUserInfo } = useUserContext();
   const { username } = userInfo || {};
-  const rotatingProxy =
-    "resi-eu.lightningproxies.net:9999:dnzkfhzjlkcobzp90166-zone-resi-region-de:lsusonhynm";
-  const generatedProxy =
-    "resi-eu.lightningproxies.net:9999:dnzkfhzjlkcobzp90166-zone-resi-region-de-session-39HivxVQaccW-sessTime=22:lsusonhynm";
-
+  const [proxyUsername, setProxyUsername] = useState(
+    "dnzkfhzjlkcobzp90166-zone-resi-region-de"
+  );
+  const [proxyPassword, setProxyPassword] = useState("lsusonhynm");
+  const [generatedProxy, setGeneratedProxy] = useState("");
   const [bandwidth, setBandwidth] = useState(0);
 
   const handleAddBandwidth = async () => {
@@ -80,7 +76,7 @@ const ProxyGenerator = () => {
 
   const handleCountryChange = async (e, name) => {
     const val = e.target.value;
-  
+
     if (name === "country") {
       setCountry(val);
       const stateList = await getLocation({ country_code: val });
@@ -96,6 +92,25 @@ const ProxyGenerator = () => {
       }
     } else {
       setCity(val);
+    }
+  };
+
+  const handleUpdateSettings = async () => {
+    const res = await fetchData("proxy-list-create-residential", {
+      account: proxyUsername, // proxy account
+      password: proxyPassword, // proxy pass
+      type: "sticky", // rotating or sticky
+      time: stickyTime, // for only sticky
+      country_code: country, // optional
+      state: state, // optional
+      city: city, // optional
+    });
+
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      setGeneratedProxy(res.data);
+      toast.success("Proxy settings updated successfully");
     }
   };
 
@@ -161,7 +176,7 @@ const ProxyGenerator = () => {
             <div className="flex flex-col justify-between items-start">
               <h3 className="font-medium text-gray-600">Total Bandwidth</h3>
               <span className="text-2xl font-normal">
-                {bytesToGB(balance)} GB
+                {bytesToGB(residentialUserInfo?.all_buy)} GB
               </span>
             </div>
           </div>
@@ -170,7 +185,15 @@ const ProxyGenerator = () => {
             <CustomProgress
               borderColor="#8abaff"
               progressColor="#1a75ff"
-              percentage={76}
+              percentage={
+                isNaN(
+                  (residentialUserInfo?.used / residentialUserInfo?.all_buy) *
+                    100
+                )
+                  ? 0
+                  : (residentialUserInfo?.used / residentialUserInfo?.all_buy) *
+                    100
+              }
               percentageClass="!text-2xl"
               size={120}
               thickness={6}
@@ -183,7 +206,7 @@ const ProxyGenerator = () => {
                   <span className="text-gray-400">Used Bandwidth</span>
                 </div>
 
-                <span>1.2 GB</span>
+                <span>{bytesToGB(residentialUserInfo?.used)} GB</span>
               </div>
 
               <div className="flex w-full justify-between">
@@ -192,7 +215,7 @@ const ProxyGenerator = () => {
                   <span className="text-gray-400">Remaining Bandwidth</span>
                 </div>
 
-                <span>3.8 GB</span>
+                <span>{bytesToGB(residentialUserInfo?.bandwidthLeft)} GB</span>
               </div>
 
               <div className="flex flex-col items-start w-full gap-2">
@@ -305,7 +328,8 @@ const ProxyGenerator = () => {
               <Box className="flex flex-col items-start w-full gap-1">
                 <span className=" text-gray-500">Username</span>
                 <TextField
-                  defaultValue="dnzkfhzjlkcobzp90166-zone-resi-region-de"
+                  value={proxyUsername}
+                  onChange={(e) => setProxyUsername(e.target.value)}
                   size="small"
                   fullWidth
                 />
@@ -313,7 +337,12 @@ const ProxyGenerator = () => {
 
               <Box className="flex flex-col items-start gap-1 w-full">
                 <span className=" text-gray-500">Password</span>
-                <TextField defaultValue="lsusonhynm" size="small" fullWidth />
+                <TextField
+                  value={proxyPassword}
+                  onChange={(e) => setProxyPassword(e.target.value)}
+                  size="small"
+                  fullWidth
+                />
               </Box>
             </Box>
 
@@ -415,6 +444,10 @@ const ProxyGenerator = () => {
                   borderRadius: 2,
                 }}
                 variant="outlined"
+                onClick={() => {
+                  console.log("clicked");
+                  handleUpdateSettings();
+                }}
               >
                 Update Settings ›
               </Button>
@@ -462,7 +495,7 @@ const ProxyGenerator = () => {
             <TextFieldWithLabel
               label="Rotating Proxy"
               fullWidth
-              value={rotatingProxy}
+              value={generatedProxy}
               sx={{ mb: 3 }}
               InputProps={{
                 readOnly: true,

@@ -10,7 +10,7 @@ export const fetchData = async (url, payload) => {
       {
         headers: {
           "Content-Type": "application/json",
-          // "api-key": "bqzncgO9k3"
+          "api-key": "bqzncgO9k3",
         },
       }
     );
